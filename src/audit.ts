@@ -1,5 +1,7 @@
 import {spawnSync, SpawnSyncReturns} from 'child_process'
 import stripAnsi from 'strip-ansi'
+import process from 'process'
+import semver from 'semver'
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760 // 10MiB
 
@@ -19,7 +21,11 @@ export class Audit {
       const cmd: string = isWindowsEnvironment ? 'npm.cmd' : 'npm'
 
       if (productionFlag === 'true') {
-        auditOptions.push('--production')
+        if (semver.gt(process.version, 'v17.9.9')) {
+          auditOptions.push('--omit=dev')
+        } else {
+          auditOptions.push('--production')
+        }
       }
 
       if (jsonFlag === 'true') {
